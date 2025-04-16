@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOLO Taxi - Welkom</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1c1c1c, #3b3b3b);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
 
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      max-width: 500px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    a button {
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    a button:hover {
+      background-color: #ffaa00;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welkom bij YOLO Taxi</h1>
+  <p>Kies hieronder of je een rit wilt boeken als klant, of inloggen als chauffeur.</p>
+  <div class="button-container">
+    <a href="klant.html"><button>Klant</button></a>
+    <a href="chauffeur.html"><button>Chauffeur</button></a>
+  </div>
+</body>
+</html>
