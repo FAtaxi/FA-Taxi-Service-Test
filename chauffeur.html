@@ -3,132 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chauffeur Inloggen</title>
+  <title>Chauffeur Inloggen en Registreren</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f4f4f9, #d9e4f5);
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
     }
     .container {
-      background-color: #ffffff;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     h1 {
       text-align: center;
-      margin-bottom: 1rem;
+      color: #333;
     }
-    input {
+    .form-group {
+      margin: 10px 0;
+    }
+    input[type="text"], input[type="password"], input[type="email"] {
       width: 100%;
-      padding: 0.8rem;
-      margin: 0.5rem 0;
+      padding: 10px;
+      margin: 5px 0;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 5px;
     }
     button {
       width: 100%;
-      padding: 0.8rem;
-      background-color: #007BFF;
-      color: white;
+      padding: 10px;
       border: none;
-      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 5px;
       cursor: pointer;
-      margin-top: 0.5rem;
+      font-size: 16px;
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #45a049;
+    }
+    .alert {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
     }
     #locatie {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #333;
+      margin-top: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Chauffeur Login</h1>
-    <input type="text" id="naam" placeholder="Naam">
-    <input type="password" id="wachtwoord" placeholder="Wachtwoord">
-    <button onclick="registreerChauffeur()">Registreren</button>
-    <button onclick="inloggen()">Inloggen</button>
-    <div id="locatie"></div>
+    <h1>Inloggen / Registreren</h1>
+
+    <div id="registerSection">
+      <h2>Registreren</h2>
+      <div class="form-group">
+        <input type="text" id="registerNaam" placeholder="Naam" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="registerWachtwoord" placeholder="Wachtwoord" required>
+      </div>
+      <div class="form-group">
+        <input type="email" id="registerEmail" placeholder="Email" required>
+      </div>
+      <button onclick="registreer()">Registreer</button>
+      <div id="registerMessage" class="alert"></div>
+    </div>
+
+    <div id="loginSection">
+      <h2>Inloggen</h2>
+      <div class="form-group">
+        <input type="text" id="loginNaam" placeholder="Naam" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="loginWachtwoord" placeholder="Wachtwoord" required>
+      </div>
+      <button onclick="login()">Inloggen</button>
+      <div id="loginMessage" class="alert"></div>
+    </div>
+
+    <div id="locatie">
+      <h2>Haal Locatie Op</h2>
+      <button onclick="getLocatie()">Locatie Ophalen</button>
+      <p id="locatieInfo"></p>
+    </div>
   </div>
 
   <script>
-    const apiKey = '5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3';
-
-    function registreerChauffeur() {
-      const naam = document.getElementById('naam').value;
-      const wachtwoord = document.getElementById('wachtwoord').value;
+    // Registreer een chauffeur
+    function registreer() {
+      const naam = document.getElementById('registerNaam').value;
+      const wachtwoord = document.getElementById('registerWachtwoord').value;
+      const email = document.getElementById('registerEmail').value;
 
       fetch('/registreer', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ naam, wachtwoord })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ naam, wachtwoord, email })
       })
-      .then(res => res.json())
-      .then(data => alert(data.message))
-      .catch(err => console.error(err));
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('registerMessage').textContent = data.message;
+      })
+      .catch(error => console.error('Error:', error));
     }
 
-    function inloggen() {
-      const naam = document.getElementById('naam').value;
-      const wachtwoord = document.getElementById('wachtwoord').value;
+    // Login voor een chauffeur
+    function login() {
+      const naam = document.getElementById('loginNaam').value;
+      const wachtwoord = document.getElementById('loginWachtwoord').value;
 
-      fetch('/inloggen', {
+      fetch('/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ naam, wachtwoord })
       })
-      .then(res => res.json())
+      .then(response => response.json())
       .then(data => {
-        if (data.success) {
-          haalLocatieOp();
-        } else {
-          alert(data.message);
+        document.getElementById('loginMessage').textContent = data.message;
+        if (data.message === 'Inloggen gelukt!') {
+          window.location.href = '/dashboard';  // Ga naar het dashboard na succesvolle login
         }
       })
-      .catch(err => console.error(err));
+      .catch(error => console.error('Error:', error));
     }
 
-    function haalLocatieOp() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-
-          const locatieElement = document.getElementById('locatie');
-          locatieElement.textContent = `Coördinaten: ${lat}, ${lon}`;
-
-          try {
-            const response = await fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${apiKey}&point.lat=${lat}&point.lon=${lon}`);
-            const data = await response.json();
-            const adres = data.features[0]?.properties?.label || 'Adres niet gevonden';
-            locatieElement.textContent += `\nAdres: ${adres}`;
-          } catch (error) {
-            locatieElement.textContent += '\nFout bij ophalen van adres';
-          }
-        }, () => {
-          alert('Locatie ophalen mislukt. Zorg dat je locatie aanstaat.');
-        });
-      } else {
-        alert('Geolocatie wordt niet ondersteund door deze browser.');
-      }
+    // Haal de locatie van de chauffeur op
+    function getLocatie() {
+      fetch('/locatie')
+        .then(response => response.json())
+        .then(data => {
+          const locatieInfo = `Latitude: ${data.latitude}, Longitude: ${data.longitude}`;
+          document.getElementById('locatieInfo').textContent = locatieInfo;
+        })
+        .catch(error => console.error('Error:', error));
     }
   </script>
 </body>
