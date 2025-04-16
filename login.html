@@ -3,20 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inloggen - FA Taxi Service</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Zorg ervoor dat je hier je CSS toevoegt -->
+    <title>Registratie</title>
 </head>
 <body>
-    <div id="login-form">
-        <h1>Inloggen</h1>
-        <form id="login">
-            <input type="text" id="naam" name="naam" placeholder="Naam" required>
-            <input type="password" id="wachtwoord" name="wachtwoord" placeholder="Wachtwoord" required>
-            <button type="submit">Inloggen</button>
-        </form>
-        <p id="error-message" style="color: red;"></p>
-    </div>
+    <h1>Registreren</h1>
+    <form id="registration-form">
+        <label for="naam">Naam:</label>
+        <input type="text" id="naam" required><br><br>
+        <label for="wachtwoord">Wachtwoord:</label>
+        <input type="password" id="wachtwoord" required><br><br>
+        <button type="submit">Registreren</button>
+    </form>
 
-    <script src="login.js"></script> <!-- Koppel hier je JavaScript-bestand -->
+    <div id="error-message" style="color: red; display: none;"></div>
+
+    <script>
+        document.getElementById('registration-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const naam = document.getElementById('naam').value;
+            const wachtwoord = document.getElementById('wachtwoord').value;
+
+            // Stuur de POST-aanroep naar de server
+            fetch('http://localhost:3000/registreer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    naam: naam,
+                    wachtwoord: wachtwoord
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Registratie gelukt!') {
+                    alert('Registratie succesvol!');
+                } else {
+                    document.getElementById('error-message').innerText = data.message;
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Er is een fout opgetreden:', error);
+                document.getElementById('error-message').innerText = 'Er is een fout opgetreden bij de registratie.';
+                document.getElementById('error-message').style.display = 'block';
+            });
+        });
+    </script>
 </body>
 </html>
