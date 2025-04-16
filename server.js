@@ -35,7 +35,6 @@ app.post('/login', (req, res) => {
 
 // 📍 Locatie ophalen
 app.get('/locatie', (req, res) => {
-  // Simuleer de coördinaten van de chauffeur (je zou dit kunnen vervangen door echte data)
   const locatie = {
     lat: 52.3784,  // Voorbeeld latitude
     lon: 4.9009   // Voorbeeld longitude
