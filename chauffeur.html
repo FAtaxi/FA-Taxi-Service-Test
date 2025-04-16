@@ -59,6 +59,13 @@
     button:hover {
       background-color: #357ab7;
     }
+
+    .status {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: green;
+      font-weight: bold;
+    }
   </style>
   <script>
     function laadRitgegevens() {
@@ -74,37 +81,10 @@
     }
 
     function accepteerRit() {
-      const ritId = 1; // De ID van de rit die de chauffeur gaat accepteren (bijv. 1)
-      const chauffeurId = 1; // De ID van de chauffeur (dit moet dynamisch zijn als de chauffeur ingelogd is)
-
-      fetch('/accepteer-rit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ritId: ritId,
-          chauffeurId: chauffeurId
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.message);
-        // Update de pagina voor de chauffeur om de status bij te werken
-        document.getElementById("rit-details").innerText = `Rit geaccepteerd!`;
-        document.getElementById("accept-btn").style.display = 'none';
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    }
-  </script>
-</head>
-<body onload="laadRitgegevens()">
-  <div class="container">
-    <h2>YOLO Taxi - Chauffeur</h2>
-    <p id="rit-details" class="chauffeur-info"></p>
-    <button id="accept-btn" onclick="accepteerRit()" style="display:none;">Accepteer Rit</button>
-  </div>
-</body>
-</html>
+      // Rit geaccepteerd, geef status weer
+      document.getElementById("status").innerText = "Rit geaccepteerd!";
+      
+      // Simuleer het verzenden van een bericht naar de klant
+      alert("Je hebt de rit geaccepteerd!");
+      
+      // Hier kun je extra logica toevoegen voor het verzenden van een bericht naar de klant, bijvoorbeeld
