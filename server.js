@@ -11,13 +11,13 @@ const dataPath = path.join(__dirname, 'chauffeurs.json');
 
 // 🚗 Registratie
 app.post('/registreer', (req, res) => {
-  const { naam, wachtwoord, email } = req.body;
+  const { naam, wachtwoord } = req.body;
   const gebruikers = JSON.parse(fs.readFileSync(dataPath));
 
   const bestaat = gebruikers.find((g) => g.naam === naam);
   if (bestaat) return res.status(400).json({ message: 'Gebruiker bestaat al' });
 
-  gebruikers.push({ naam, wachtwoord, email, geblokkeerd: false });
+  gebruikers.push({ naam, wachtwoord });
   fs.writeFileSync(dataPath, JSON.stringify(gebruikers, null, 2));
   res.json({ message: 'Registratie gelukt!' });
 });
@@ -33,16 +33,17 @@ app.post('/login', (req, res) => {
   res.json({ message: 'Inloggen gelukt!' });
 });
 
-// Locatie ophalen (simulatie)
+// 📍 Locatie ophalen
 app.get('/locatie', (req, res) => {
-  // Simuleer GPS-locatie
+  // Simuleer de coördinaten van de chauffeur (je zou dit kunnen vervangen door echte data)
   const locatie = {
-    latitude: 52.379189, // Voorbeeldlocatie (Rotterdam)
-    longitude: 4.900937,
+    lat: 52.3784,  // Voorbeeld latitude
+    lon: 4.9009   // Voorbeeld longitude
   };
   res.json(locatie);
 });
 
+// Start server
 app.listen(port, () => {
   console.log(`🚀 Server draait op http://localhost:${port}`);
 });
