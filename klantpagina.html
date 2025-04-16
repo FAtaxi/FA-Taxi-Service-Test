@@ -3,94 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <title>YOLO Taxi - Klant</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 30px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    h2 {
-      color: #4a90e2;
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-
-    label {
-      font-size: 1.2em;
-      color: #333;
-      margin-bottom: 5px;
-      display: block;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1em;
-      color: #333;
-      box-sizing: border-box;
-    }
-
-    button {
-      background-color: #4a90e2;
-      color: white;
-      font-size: 1.2em;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #357ab7;
-    }
-  </style>
   <script>
-    function verstuurRitgegevens() {
-      const ophaaladres = document.getElementById("ophaaladres").value;
-      const afzetadres = document.getElementById("afzetadres").value;
+    let beschikbareRit = null; // Variabele om de beschikbare rit op te slaan.
 
-      if (!ophaaladres || !afzetadres) {
+    function berekenRit() {
+      const ophalen = document.getElementById("ophaaladres").value;
+      const afzetten = document.getElementById("afzetadres").value;
+
+      if (!ophalen || !afzetten) {
         alert("Vul beide adressen in.");
         return;
       }
 
-      // Gegevens opslaan in localStorage
-      localStorage.setItem("ophaaladres", ophaaladres);
-      localStorage.setItem("afzetadres", afzetadres);
+      const afstandKm = 10; // Stel deze waarde in op basis van je berekening
+      const duurMin = 20; // Stel deze waarde in op basis van je berekening
 
-      // Stuur door naar de chauffeurstoewijzingspagina
-      window.location.href = "chauffeurstoewijzing.html";
+      // Bereken de prijs (stel voor als voorbeeld)
+      const prijs = (afstandKm * 2.35) + (duurMin * 0.50);
+      document.getElementById("resultaat").innerText = `Geschatte prijs: €${prijs.toFixed(2)} (${afstandKm.toFixed(1)} km, ${duurMin.toFixed(0)} min)`;
+
+      // Maak de rit beschikbaar voor de chauffeur
+      beschikbareRit = { ophalen, afzetten, prijs };
+      document.getElementById("ritstatus").innerText = "Rit beschikbaar voor chauffeur!";
+    }
+
+    function ritAanvragen() {
+      if (beschikbareRit) {
+        alert("Rit is aangevraagd!");
+      } else {
+        alert("Bereken eerst een rit!");
+      }
     }
   </script>
 </head>
 <body>
-  <div class="container">
-    <h2>YOLO Taxi - Klant</h2>
-    <label for="ophaaladres">Ophaaladres:</label>
-    <input id="ophaaladres" type="text" placeholder="Vul het ophaaladres in" /><br />
-    <label for="afzetadres">Afzetadres:</label>
-    <input id="afzetadres" type="text" placeholder="Vul het afzetadres in" /><br /><br />
-    <button onclick="verstuurRitgegevens()">Verstuur ritgegevens</button>
-  </div>
+  <h2>YOLO Taxi - Klant</h2>
+  <label>Ophaaladres:</label><br />
+  <input id="ophaaladres" type="text" placeholder="Bijv. Laan op Zuid 2, Rotterdam"><br />
+  <label>Afzetadres:</label><br />
+  <input id="afzetadres" type="text" placeholder="Bijv. Coolsingel 25, Rotterdam"><br /><br />
+  <button onclick="berekenRit()">Bereken prijs</button><br />
+  <button onclick="ritAanvragen()">Vraag rit aan</button><br />
+  <p id="resultaat"></p>
+  <p id="ritstatus"></p>
 </body>
 </html>
