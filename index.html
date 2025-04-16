@@ -1,61 +1,125 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YOLO Taxi - Welkom</title>
+  <title>Chauffeur Registratie/Inloggen</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1c1c1c, #3b3b3b);
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      text-align: center;
+      padding: 0;
     }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 40px;
+    .container {
       max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-
-    .button-container {
-      display: flex;
-      gap: 20px;
+    h1 {
+      text-align: center;
+      color: #333;
     }
-
-    a button {
-      padding: 15px 30px;
-      font-size: 1.1rem;
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
       border: none;
-      border-radius: 8px;
-      background-color: #ffcc00;
-      color: #000;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s;
     }
-
-    a button:hover {
-      background-color: #ffaa00;
+    button:hover {
+      background-color: #45a049;
+    }
+    .error {
+      color: red;
     }
   </style>
 </head>
 <body>
-  <h1>Welkom bij YOLO Taxi</h1>
-  <p>Kies hieronder of je een rit wilt boeken als klant, of inloggen als chauffeur.</p>
-  <div class="button-container">
-    <a href="klant.html"><button>Klant</button></a>
-    <a href="chauffeur.html"><button>Chauffeur</button></a>
+  <div class="container">
+    <h1>Registreren / Inloggen</h1>
+
+    <div id="registratie-form">
+      <input type="text" id="naam" placeholder="Naam" required>
+      <input type="password" id="wachtwoord" placeholder="Wachtwoord" required>
+      <button onclick="registreer()">Registreren</button>
+      <p id="error" class="error"></p>
+    </div>
+
+    <div id="inlog-form" style="display:none;">
+      <input type="text" id="inlogNaam" placeholder="Naam" required>
+      <input type="password" id="inlogWachtwoord" placeholder="Wachtwoord" required>
+      <button onclick="login()">Inloggen</button>
+      <p id="inlogError" class="error"></p>
+    </div>
+
+    <div id="locatie" style="display:none;">
+      <h3>Je Locatie:</h3>
+      <p id="locatie-gegevens"></p>
+    </div>
   </div>
+
+  <script>
+    async function registreer() {
+      const naam = document.getElementById("naam").value;
+      const wachtwoord = document.getElementById("wachtwoord").value;
+
+      const response = await fetch('/registreer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ naam, wachtwoord })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+        document.getElementById("registratie-form").style.display = "none";
+        document.getElementById("inlog-form").style.display = "block";
+      } else {
+        document.getElementById("error").innerText = data.message;
+      }
+    }
+
+    async function login() {
+      const naam = document.getElementById("inlogNaam").value;
+      const wachtwoord = document.getElementById("inlogWachtwoord").value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ naam, wachtwoord })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+        document.getElementById("inlog-form").style.display = "none";
+        document.getElementById("locatie").style.display = "block";
+        haalLocatieOp();
+      } else {
+        document.getElementById("inlogError").innerText = data.message;
+      }
+    }
+
+    async function haalLocatieOp() {
+      const response = await fetch('/locatie');
+      const data = await response.json();
+      document.getElementById("locatie-gegevens").innerText = `Lat: ${data.lat}, Lon: ${data.lon}`;
+    }
+  </script>
 </body>
 </html>
