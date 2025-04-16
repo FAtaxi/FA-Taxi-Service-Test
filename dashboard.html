@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FA Taxi Service - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fc;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin: 10px;
+      width: 300px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 24px;
+    }
+
+    .card p {
+      font-size: 16px;
+      color: #666;
+    }
+
+    .btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    footer {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* Style for dashboard stats cards */
+    .stats {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stats .stat {
+      background-color: #28a745;
+      color: white;
+      padding: 20px;
+      width: 30%;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stats .stat p {
+      font-size: 20px;
+    }
+
+    /* Location card styling */
+    .location-card {
+      background-color: #17a2b8;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welkom bij FA Taxi Service</h1>
+    <p>Jouw taxi dashboard</p>
+  </header>
+
+  <div class="container">
+    <!-- Dashboard Stats -->
+    <div class="stats">
+      <div class="stat">
+        <h3>Locatie</h3>
+        <p id="locatie">Laden...</p>
+      </div>
+      <div class="stat">
+        <h3>Gebruiker</h3>
+        <p id="gebruikerNaam">Naam niet ingelogd</p>
+      </div>
+      <div class="stat">
+        <h3>Ritstatus</h3>
+        <p id="ritStatus">Geen actieve ritten</p>
+      </div>
+    </div>
+
+    <!-- Action Cards -->
+    <div class="card location-card">
+      <h3>Bekijk je locatie</h3>
+      <p>Je huidige locatie wordt hier weergegeven.</p>
+      <button class="btn" onclick="getLocation()">Locatie ophalen</button>
+    </div>
+
+    <div class="card">
+      <h3>Informatie</h3>
+      <p>Welkom op je dashboard! Hier kun je alle belangrijke informatie vinden over je taxi-service.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>&copy; 2025 FA Taxi Service. Alle rechten voorbehouden.</p>
+  </footer>
+
+  <script>
+    // Simuleer de ingelogde gebruiker
+    const gebruiker = {
+      naam: 'Fouad',
+    };
+
+    // Update de naam van de gebruiker op het dashboard
+    document.getElementById('gebruikerNaam').textContent = gebruiker.naam;
+
+    // Functie om locatie op te halen
+    function getLocation() {
+      fetch('http://localhost:3000/locatie')
+        .then(response => response.json())
+        .then(data => {
+          const locatieElement = document.getElementById('locatie');
+          locatieElement.textContent = `Lat: ${data.lat}, Lon: ${data.lon}`;
+        })
+        .catch(error => {
+          console.error('Error bij ophalen van locatie:', error);
+        });
+    }
+
+    // Als de pagina laadt, probeer locatie op te halen
+    window.onload = getLocation;
+  </script>
+</body>
+</html>
