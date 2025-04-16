@@ -30,39 +30,17 @@ app.post('/login', (req, res) => {
   const gebruiker = gebruikers.find((g) => g.naam === naam && g.wachtwoord === wachtwoord);
   if (!gebruiker) return res.status(401).json({ message: 'Onjuiste inloggegevens' });
 
-  if (gebruiker.geblokkeerd) {
-    return res.status(403).json({ message: 'Je bent geblokkeerd door de beheerder' });
-  }
-
   res.json({ message: 'Inloggen gelukt!' });
 });
 
-// 🚫 Blokkeer chauffeur
-app.post('/blokkeer-chauffeur', (req, res) => {
-  const index = parseInt(req.query.index);
-  const gebruikers = JSON.parse(fs.readFileSync(dataPath));
-
-  if (gebruikers[index]) {
-    gebruikers[index].geblokkeerd = true;
-    fs.writeFileSync(dataPath, JSON.stringify(gebruikers, null, 2));
-    return res.sendStatus(200);
-  }
-
-  res.status(404).json({ message: 'Chauffeur niet gevonden' });
-});
-
-// 🗑 Verwijder chauffeur
-app.delete('/verwijder-chauffeur', (req, res) => {
-  const index = parseInt(req.query.index);
-  const gebruikers = JSON.parse(fs.readFileSync(dataPath));
-
-  if (gebruikers[index]) {
-    gebruikers.splice(index, 1);
-    fs.writeFileSync(dataPath, JSON.stringify(gebruikers, null, 2));
-    return res.sendStatus(200);
-  }
-
-  res.status(404).json({ message: 'Chauffeur niet gevonden' });
+// Locatie ophalen (simulatie)
+app.get('/locatie', (req, res) => {
+  // Simuleer GPS-locatie
+  const locatie = {
+    latitude: 52.379189, // Voorbeeldlocatie (Rotterdam)
+    longitude: 4.900937,
+  };
+  res.json(locatie);
 });
 
 app.listen(port, () => {
