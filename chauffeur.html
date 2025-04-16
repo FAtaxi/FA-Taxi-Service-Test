@@ -2,104 +2,122 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chauffeur Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chauffeurs Login</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 20px;
+      padding: 30px;
+      background: #f4f4f4;
     }
-    h1 {
-      color: #333;
+    #loginForm, #registerForm, #chauffeurPage {
+      display: none;
+      margin-top: 20px;
     }
-    .login-form, .dashboard {
-      max-width: 400px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    input {
+      margin: 5px;
+      padding: 8px;
+      width: 250px;
     }
     button {
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .hidden {
-      display: none;
+      padding: 10px 20px;
+      margin: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="login-form" id="loginForm">
-    <h1>Chauffeur Login</h1>
-    <input type="text" id="chauffeurNaam" placeholder="Voer je naam in" />
-    <button onclick="loginChauffeur()">Inloggen</button>
+  <h2>Welkom Chauffeur</h2>
+
+  <div id="authChoice">
+    <button onclick="showRegister()">Registreren</button>
+    <button onclick="showLogin()">Inloggen</button>
   </div>
 
-  <div class="dashboard hidden" id="dashboard">
-    <h1>Welkom, <span id="naamWeergave"></span></h1>
-    <p>Status: <span id="status">Actief</span></p>
-    <p>Live Locatie: <span id="locatie">Laden...</span></p>
+  <div id="registerForm">
+    <h3>Registratie</h3>
+    <input type="text" id="regUsername" placeholder="Gebruikersnaam" required />
+    <input type="password" id="regPassword" placeholder="Wachtwoord" required />
+    <button onclick="register()">Account aanmaken</button>
+  </div>
 
-    <h2>Rittenlijst</h2>
-    <ul id="ritten">
-      <li>Geen ritten beschikbaar</li>
-    </ul>
-    <button onclick="uitloggen()">Uitloggen</button>
+  <div id="loginForm">
+    <h3>Inloggen</h3>
+    <input type="text" id="loginUsername" placeholder="Gebruikersnaam" required />
+    <input type="password" id="loginPassword" placeholder="Wachtwoord" required />
+    <button onclick="login()">Inloggen</button>
+  </div>
+
+  <div id="chauffeurPage">
+    <h3>Chauffeur Dashboard</h3>
+    <p><strong>Live locatie (adres):</strong> <span id="adresInfo">Ophalen...</span></p>
   </div>
 
   <script>
-    function loginChauffeur() {
-      const naam = document.getElementById("chauffeurNaam").value;
-      if (naam) {
-        localStorage.setItem("chauffeurNaam", naam);
-        document.getElementById("loginForm").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        document.getElementById("naamWeergave").textContent = naam;
-        haalLocatieOp();
-      }
+    const ORS_API_KEY = "5b3ce3597851110001cf62483b35a4b21137404e97cfa6e1fb6dba15"; // OpenRouteService API Key
+
+    function showRegister() {
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('chauffeurPage').style.display = 'none';
     }
 
-    function uitloggen() {
-      localStorage.removeItem("chauffeurNaam");
-      location.reload();
+    function showLogin() {
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('chauffeurPage').style.display = 'none';
     }
 
-    function haalLocatieOp() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(pos) {
-          const coords = pos.coords.latitude + ", " + pos.coords.longitude;
-          document.getElementById("locatie").textContent = coords;
-        }, function(error) {
-          document.getElementById("locatie").textContent = "Locatie niet beschikbaar";
-        });
+    function register() {
+      const username = document.getElementById('regUsername').value;
+      const password = document.getElementById('regPassword').value;
+      if (username && password) {
+        localStorage.setItem(username, password);
+        alert("Registratie succesvol! Je kunt nu inloggen.");
+        showLogin();
       } else {
-        document.getElementById("locatie").textContent = "Locatie niet ondersteund";
+        alert("Vul alle velden in.");
       }
     }
 
-    window.onload = function () {
-      const naam = localStorage.getItem("chauffeurNaam");
-      if (naam) {
-        document.getElementById("loginForm").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        document.getElementById("naamWeergave").textContent = naam;
-        haalLocatieOp();
+    function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const storedPassword = localStorage.getItem(username);
+
+      if (storedPassword === password) {
+        alert("Succesvol ingelogd.");
+        document.getElementById('authChoice').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('chauffeurPage').style.display = 'block';
+        getLocation();
+      } else {
+        alert("Verkeerde inloggegevens.");
       }
-    };
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showAddress);
+      } else {
+        document.getElementById("adresInfo").innerText = "Locatie niet ondersteund.";
+      }
+    }
+
+    function showAddress(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${ORS_API_KEY}&point.lat=${lat}&point.lon=${lon}`)
+        .then(response => response.json())
+        .then(data => {
+          const address = data.features[0]?.properties?.label || "Adres niet gevonden";
+          document.getElementById("adresInfo").innerText = address;
+        })
+        .catch(error => {
+          document.getElementById("adresInfo").innerText = "Fout bij ophalen adres.";
+          console.error(error);
+        });
+    }
   </script>
 </body>
 </html>
