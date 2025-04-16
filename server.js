@@ -1,55 +1,38 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const app = express();
 const port = 3000;
 
-let chauffeurs = [
-  { id: 1, naam: 'Jan', beschikbaarheid: 'beschikbaar' },
-  { id: 2, naam: 'Piet', beschikbaarheid: 'niet_beschikbaar' },
-];
-
-let ritten = [
-  { id: 1, ophaaladres: 'Straat A', afzetadres: 'Straat B', status: 'open', chauffeurId: null }
-];
-
+app.use(express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Route om beschikbaarheid van chauffeur bij te werken
-app.post('/update-beschikbaarheid', (req, res) => {
-  const chauffeurId = req.body.chauffeurId;
-  const beschikbaarheid = req.body.beschikbaarheid;
+const dataPath = path.join(__dirname, 'chauffeurs.json');
 
-  const chauffeur = chauffeurs.find(ch => ch.id == chauffeurId);
-  if (chauffeur) {
-    chauffeur.beschikbaarheid = beschikbaarheid;
-    res.send('Beschikbaarheid succesvol geüpdatet');
-  } else {
-    res.status(404).send('Chauffeur niet gevonden');
-  }
+// 🚗 Registratie
+app.post('/registreer', (req, res) => {
+  const { naam, wachtwoord } = req.body;
+  const gebruikers = JSON.parse(fs.readFileSync(dataPath));
+
+  const bestaat = gebruikers.find((g) => g.naam === naam);
+  if (bestaat) return res.status(400).json({ message: 'Gebruiker bestaat al' });
+
+  gebruikers.push({ naam, wachtwoord });
+  fs.writeFileSync(dataPath, JSON.stringify(gebruikers, null, 2));
+  res.json({ message: 'Registratie gelukt!' });
 });
 
-// Route om rit te accepteren
-app.post('/accepteer-rit', (req, res) => {
-  const ritId = req.body.ritId;
-  const chauffeurId = req.body.chauffeurId;
+// 🔐 Login
+app.post('/login', (req, res) => {
+  const { naam, wachtwoord } = req.body;
+  const gebruikers = JSON.parse(fs.readFileSync(dataPath));
 
-  // Zoek de rit en update de status
-  const rit = ritten.find(rit => rit.id == ritId);
-  const chauffeur = chauffeurs.find(ch => ch.id == chauffeurId);
+  const gebruiker = gebruikers.find((g) => g.naam === naam && g.wachtwoord === wachtwoord);
+  if (!gebruiker) return res.status(401).json({ message: 'Onjuiste inloggegevens' });
 
-  if (rit && chauffeur && chauffeur.beschikbaarheid === 'beschikbaar') {
-    rit.status = 'geaccepteerd';
-    rit.chauffeurId = chauffeurId;
-
-    // Markeer chauffeur als bezet
-    chauffeur.beschikbaarheid = 'niet_beschikbaar';
-
-    res.send({ message: `Rit ${ritId} succesvol geaccepteerd door chauffeur ${chauffeur.naam}` });
-  } else {
-    res.status(400).send('Fout bij ritacceptatie');
-  }
+  res.json({ message: 'Inloggen gelukt!' });
 });
 
 app.listen(port, () => {
-  console.log(`Server draait op poort ${port}`);
+  console.log(`🚀 Server draait op http://localhost:${port}`);
 });
