@@ -7,8 +7,8 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1c1c1c, #3b3b3b);
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1e1e1e, #2c2c2c);
       color: #ffffff;
       display: flex;
       flex-direction: column;
@@ -76,7 +76,18 @@
   <p id="bevestiging"></p>
 
   <script>
-    let ritGegevens = {};
+    const apiKey = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
+
+    async function adresNaarCoordinaten(adres) {
+      const url = `https://api.openrouteservice.org/geocode/search?api_key=${apiKey}&text=${encodeURIComponent(adres)}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        return data.features[0].geometry.coordinates;
+      } else {
+        throw new Error("Geen coördinaten gevonden voor het adres.");
+      }
+    }
 
     async function berekenRit() {
       const ophalen = document.getElementById("ophaaladres").value;
@@ -87,17 +98,33 @@
         return;
       }
 
-      ritGegevens.ophaaladres = ophalen;
-      ritGegevens.afzetadres = afzetten;
-
-      const apiKey = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
-
       try {
-        const response = await fetch(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${encodeURIComponent(ophalen)}&end=${encodeURIComponent(afzetten)}`);
-        if (!response.ok) throw new Error("Fout bij ophalen van de route.");
+        const coordStart = await adresNaarCoordinaten(ophalen);
+        const coordEind = await adresNaarCoordinaten(afzetten);
 
+        const routeUrl = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${coordStart[0]},${coordStart[1]}&end=${coordEind[0]},${coordEind[1]}`;
+        const response = await fetch(routeUrl);
         const data = await response.json();
+
         const afstandKm = data.features[0].properties.summary.distance / 1000;
         const duurMin = data.features[0].properties.summary.duration / 60;
+        const prijs = 3 + (afstandKm * 2.00) + (duurMin * 0.50);
 
-        const
+        document.getElementById("resultaat").innerText =
+          `Geschatte prijs: €${prijs.toFixed(2)} (${afstandKm.toFixed(1)} km, ${duurMin.toFixed(0)} min)`;
+
+        document.getElementById("boekBtn").style.display = "inline-block";
+        document.getElementById("bevestiging").innerText = "";
+
+      } catch (err) {
+        document.getElementById("resultaat").innerText = "❌ Kon de rit niet berekenen. Controleer je adressen.";
+        document.getElementById("boekBtn").style.display = "none";
+      }
+    }
+
+    function boekRit() {
+      document.getElementById("bevestiging").innerText = "✅ Je rit is geboekt! Een chauffeur is onderweg.";
+    }
+  </script>
+</body>
+</html>
