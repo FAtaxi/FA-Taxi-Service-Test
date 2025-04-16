@@ -4,170 +4,218 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FA Taxi Service - Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f4f7fc;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-
-    header {
-      background-color: #007bff;
-      color: white;
-      padding: 15px 0;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-    }
-
-    .container {
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
       display: flex;
-      justify-content: space-around;
-      padding: 20px;
-      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
     }
-
-    .card {
-      background-color: white;
+    .container {
+      background: white;
+      border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 100%;
+      max-width: 400px;
+    }
+    header {
+      background: #1d3557;
       padding: 20px;
-      margin: 10px;
-      width: 300px;
-      border-radius: 8px;
       text-align: center;
+      color: white;
     }
-
-    .card h3 {
-      margin-top: 0;
-      font-size: 24px;
+    h1 {
+      font-weight: 600;
     }
-
-    .card p {
+    .auth-form {
+      padding: 20px;
+    }
+    .auth-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
       font-size: 16px;
-      color: #666;
     }
-
-    .btn {
-      background-color: #007bff;
+    .auth-form button {
+      width: 100%;
+      padding: 10px;
+      background: #1d3557;
       color: white;
       border: none;
-      padding: 10px;
-      margin-top: 20px;
-      cursor: pointer;
       border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .auth-form button:hover {
+      background: #457b9d;
+    }
+    .auth-links {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .auth-links a {
+      color: #1d3557;
       text-decoration: none;
+      font-weight: 600;
     }
-
-    .btn:hover {
-      background-color: #0056b3;
+    .auth-links a:hover {
+      text-decoration: underline;
     }
-
-    footer {
-      background-color: #007bff;
-      color: white;
-      padding: 10px;
-      text-align: center;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-
-    /* Style for dashboard stats cards */
-    .stats {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .stats .stat {
-      background-color: #28a745;
-      color: white;
+    .dashboard {
+      display: none;
+      background: #fff;
       padding: 20px;
-      width: 30%;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
+      border-radius: 10px;
     }
-
-    .stats .stat p {
-      font-size: 20px;
+    .dashboard h2 {
+      margin-bottom: 20px;
     }
-
-    /* Location card styling */
-    .location-card {
-      background-color: #17a2b8;
+    .logout-button {
+      background: #e63946;
+      padding: 10px;
       color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .logout-button:hover {
+      background: #f1a7a6;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Welkom bij FA Taxi Service</h1>
-    <p>Jouw taxi dashboard</p>
-  </header>
 
-  <div class="container">
-    <!-- Dashboard Stats -->
-    <div class="stats">
-      <div class="stat">
-        <h3>Locatie</h3>
-        <p id="locatie">Laden...</p>
-      </div>
-      <div class="stat">
-        <h3>Gebruiker</h3>
-        <p id="gebruikerNaam">Naam niet ingelogd</p>
-      </div>
-      <div class="stat">
-        <h3>Ritstatus</h3>
-        <p id="ritStatus">Geen actieve ritten</p>
+  <div class="container" id="auth-container">
+    <header>
+      <h1>FA Taxi Service</h1>
+      <p>Welkom bij de taxi service</p>
+    </header>
+
+    <div class="auth-form" id="login-form">
+      <h2>Inloggen</h2>
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Wachtwoord" required>
+      <button onclick="login()">Inloggen</button>
+      <div class="auth-links">
+        <p>Geen account? <a href="#" onclick="toggleForm('register')">Registreren</a></p>
       </div>
     </div>
 
-    <!-- Action Cards -->
-    <div class="card location-card">
-      <h3>Bekijk je locatie</h3>
-      <p>Je huidige locatie wordt hier weergegeven.</p>
-      <button class="btn" onclick="getLocation()">Locatie ophalen</button>
+    <div class="auth-form" id="register-form" style="display:none;">
+      <h2>Registreren</h2>
+      <input type="email" id="register-email" placeholder="Email" required>
+      <input type="password" id="register-password" placeholder="Wachtwoord" required>
+      <button onclick="register()">Registreren</button>
+      <div class="auth-links">
+        <p>Al een account? <a href="#" onclick="toggleForm('login')">Inloggen</a></p>
+      </div>
     </div>
-
-    <div class="card">
-      <h3>Informatie</h3>
-      <p>Welkom op je dashboard! Hier kun je alle belangrijke informatie vinden over je taxi-service.</p>
-    </div>
-
   </div>
 
-  <footer>
-    <p>&copy; 2025 FA Taxi Service. Alle rechten voorbehouden.</p>
-  </footer>
+  <div class="dashboard" id="dashboard">
+    <h2>Welkom, <span id="user-email"></span></h2>
+    <p>U kunt nu ritten boeken!</p>
+    <button class="logout-button" onclick="logout()">Uitloggen</button>
+  </div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script>
-    // Simuleer de ingelogde gebruiker
-    const gebruiker = {
-      naam: 'Fouad',
+    // Firebase Configuratie
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIpEZWCLXWgCBsMQKQVSxWc4GySJ1NlMc",
+      authDomain: "fa-taxi-service.firebaseapp.com",
+      projectId: "fa-taxi-service",
+      storageBucket: "fa-taxi-service.firebasestorage.app",
+      messagingSenderId: "482023134149",
+      appId: "1:482023134149:web:db57e87f7f671ea4a8b1ac",
+      measurementId: "G-CZ09KB69NR"
     };
 
-    // Update de naam van de gebruiker op het dashboard
-    document.getElementById('gebruikerNaam').textContent = gebruiker.naam;
+    // Firebase Initialisatie
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    // Functie om locatie op te halen
-    function getLocation() {
-      fetch('http://localhost:3000/locatie')
-        .then(response => response.json())
-        .then(data => {
-          const locatieElement = document.getElementById('locatie');
-          locatieElement.textContent = `Lat: ${data.lat}, Lon: ${data.lon}`;
-        })
-        .catch(error => {
-          console.error('Error bij ophalen van locatie:', error);
-        });
+    // Functie om tussen login en register te schakelen
+    function toggleForm(formType) {
+      if (formType === 'login') {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+      } else {
+        document.getElementById('register-form').style.display = 'block';
+        document.getElementById('login-form').style.display = 'none';
+      }
     }
 
-    // Als de pagina laadt, probeer locatie op te halen
-    window.onload = getLocation;
+    // Functie voor registreren
+    async function register() {
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+        alert('Registratie succesvol!');
+        toggleForm('login');
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Functie voor inloggen
+    async function login() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        alert('Inloggen succesvol!');
+        showDashboard();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Functie voor uitloggen
+    function logout() {
+      auth.signOut().then(() => {
+        alert('Uitgelogd!');
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('auth-container').style.display = 'block';
+      }).catch((error) => {
+        alert(error.message);
+      });
+    }
+
+    // Functie om dashboard te tonen
+    function showDashboard() {
+      document.getElementById('auth-container').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('user-email').textContent = auth.currentUser.email;
+    }
+
+    // Controleer of gebruiker ingelogd is
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        showDashboard();
+      } else {
+        document.getElementById('auth-container').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
