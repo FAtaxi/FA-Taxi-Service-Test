@@ -1,137 +1,226 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chauffeur Inloggen en Registreren</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chauffeur Registratie en Locatie</title>
+    <style>
+        /* Algemene stijl */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #56ccf2, #2f80ed);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8em;
+            margin-top: 30px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="password"], button {
+            padding: 15px;
+            font-size: 1em;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        input[type="text"], input[type="password"] {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+
+        .form-group input {
+            background-color: #f0f0f0;
+        }
+
+        #statusMessage {
+            color: #ffeb3b;
+        }
+
+        #locationMessage {
+            color: #ff5722;
+        }
+
+        /* Button stijl voor de locatietoegang */
+        #getLocationBtn {
+            background-color: #2196F3;
+        }
+
+        #getLocationBtn:hover {
+            background-color: #1e88e5;
+        }
+
+        /* Responsief ontwerp */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1, h2 {
+                font-size: 1.8em;
+            }
+
+            button {
+                font-size: 0.9em;
+                padding: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Chauffeur Inloggen en Registreren</h1>
 
-  <div id="register-form">
-    <h2>Registreren</h2>
-    <input type="text" id="reg-username" placeholder="Kies een gebruikersnaam" required>
-    <input type="password" id="reg-password" placeholder="Kies een wachtwoord" required>
-    <button onclick="register()">Registreren</button>
-  </div>
+    <div class="container">
+        <h1>Chauffeur Registratie</h1>
+        
+        <!-- Registratie Formulier -->
+        <div class="form-group">
+            <label for="naam">Naam:</label>
+            <input type="text" id="naam" placeholder="Voer je naam in" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="text" id="email" placeholder="Voer je email in" required>
+        </div>
+        <div class="form-group">
+            <label for="wachtwoord">Wachtwoord:</label>
+            <input type="password" id="wachtwoord" placeholder="Voer je wachtwoord in" required>
+        </div>
+        <button id="registerBtn">Registreer Chauffeur</button>
 
-  <div id="login-form" style="display:none;">
-    <h2>Inloggen</h2>
-    <input type="text" id="login-username" placeholder="Gebruikersnaam" required>
-    <input type="password" id="login-password" placeholder="Wachtwoord" required>
-    <button onclick="login()">Inloggen</button>
-  </div>
+        <div class="message" id="statusMessage"></div>
 
-  <div id="driver-info" style="display:none;">
-    <h2>Chauffeur Dashboard</h2>
-    <p>Je hebt succesvol ingelogd!</p>
-    <button onclick="getLocation()">Haal Locatie Op</button>
-    <p id="location"></p>
-    <p id="address"></p>
-  </div>
+        <!-- Locatie -->
+        <h2>Locatie Informatie</h2>
+        <button id="getLocationBtn">Haal Locatie op</button>
+        <div class="message" id="locationMessage"></div>
 
-  <script>
-    const apiKey = '5b3ce3597851110001cf6248b6b83abf85e2482d4cc1b97a5b54c101fe48c007';  // OpenRouteService API key
+        <!-- Inloggen -->
+        <h2>Chauffeur Inloggen</h2>
+        <div class="form-group">
+            <label for="inlogEmail">Email:</label>
+            <input type="text" id="inlogEmail" placeholder="Voer je email in" required>
+        </div>
+        <div class="form-group">
+            <label for="inlogWachtwoord">Wachtwoord:</label>
+            <input type="password" id="inlogWachtwoord" placeholder="Voer je wachtwoord in" required>
+        </div>
+        <button id="loginBtn">Inloggen</button>
+    </div>
 
-    let drivers = [];  // Lijst van geregistreerde chauffeurs
+    <script>
+        const apiKey = '5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3';
+        const baseURL = 'https://api.openrouteservice.org/geocode/reverse';
 
-    // Functie voor registratie
-    function register() {
-      const username = document.getElementById('reg-username').value;
-      const password = document.getElementById('reg-password').value;
+        // Chauffeur registratie
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            const naam = document.getElementById('naam').value;
+            const email = document.getElementById('email').value;
+            const wachtwoord = document.getElementById('wachtwoord').value;
 
-      // Check of de chauffeur al bestaat
-      const existingDriver = drivers.find(driver => driver.username === username);
-      if (existingDriver) {
-        alert('Deze gebruikersnaam is al geregistreerd.');
-        return;
-      }
+            if (naam && email && wachtwoord) {
+                // Sla de gegevens op in de lokale opslag (voor dit voorbeeld lokaal)
+                localStorage.setItem('chauffeur', JSON.stringify({ naam, email, wachtwoord }));
+                document.getElementById('statusMessage').textContent = 'Chauffeur geregistreerd! Log in om verder te gaan.';
+            } else {
+                document.getElementById('statusMessage').textContent = 'Alle velden zijn verplicht.';
+            }
+        });
 
-      // Voeg chauffeur toe aan de lijst
-      drivers.push({ username, password });
-      alert('Je bent succesvol geregistreerd!');
-      document.getElementById('register-form').style.display = 'none';
-      document.getElementById('login-form').style.display = 'block';
-    }
+        // Chauffeur inloggen
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const inlogEmail = document.getElementById('inlogEmail').value;
+            const inlogWachtwoord = document.getElementById('inlogWachtwoord').value;
 
-    // Functie voor inloggen
-    function login() {
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
+            const chauffeur = JSON.parse(localStorage.getItem('chauffeur'));
 
-      // Zoek chauffeur in de lijst
-      const driver = drivers.find(driver => driver.username === username && driver.password === password);
+            if (chauffeur && chauffeur.email === inlogEmail && chauffeur.wachtwoord === inlogWachtwoord) {
+                document.getElementById('statusMessage').textContent = 'Inloggen succesvol!';
+            } else {
+                document.getElementById('statusMessage').textContent = 'Email of wachtwoord is incorrect.';
+            }
+        });
 
-      if (driver) {
-        alert('Je bent succesvol ingelogd!');
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('driver-info').style.display = 'block';
-      } else {
-        alert('Foute gebruikersnaam of wachtwoord.');
-      }
-    }
+        // Locatie ophalen en omzetten naar adres
+        document.getElementById('getLocationBtn').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
 
-    // Functie voor het ophalen van de locatie
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
-      } else {
-        alert("Geolocatie is niet ondersteund door deze browser.");
-      }
-    }
-
-    // Functie om de locatie weer te geven
-    function showPosition(position) {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      document.getElementById('location').innerHTML = `Coördinaten: Lat: ${lat}, Lon: ${lon}`;
-
-      // Haal adres op van OpenRouteService
-      getAddressFromCoordinates(lat, lon).then(address => {
-        document.getElementById('address').innerHTML = `Adres: ${address}`;
-      });
-    }
-
-    // Foutmelding als locatie niet kan worden opgehaald
-    function showError(error) {
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          alert("Geolocatie is geweigerd door de gebruiker.");
-          break;
-        case error.POSITION_UNAVAILABLE:
-          alert("Locatie-informatie is niet beschikbaar.");
-          break;
-        case error.TIMEOUT:
-          alert("Tijdslimiet voor ophalen van locatie is verlopen.");
-          break;
-        case error.UNKNOWN_ERROR:
-          alert("Er is een onbekende fout opgetreden.");
-          break;
-      }
-    }
-
-    // Functie om coördinaten om te zetten naar een adres
-    async function getAddressFromCoordinates(lat, lon) {
-      const url = `https://api.openrouteservice.org/geocode/reverse?point.lon=${lon}&point.lat=${lat}&api_key=${apiKey}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data && data.features && data.features.length > 0) {
-          const address = data.features[0].properties.label;
-          console.log('Adres:', address);
-          return address;
-        } else {
-          console.error('Geen adres gevonden voor de gegeven coördinaten');
-          return 'Adres niet gevonden';
-        }
-      } catch (error) {
-        console.error('Fout bij ophalen van adres:', error);
-        return 'Fout bij ophalen van adres';
-      }
-    }
-  </script>
+                    fetch(`${baseURL}?point.lon=${lon}&point.lat=${lat}&api_key=${apiKey}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.features && data.features[0]) {
+                                const adres = data.features[0].properties.label;
+                                document.getElementById('locationMessage').textContent = `Je locatie: ${adres}`;
+                            } else {
+                                document.getElementById('locationMessage').textContent = 'Adres niet gevonden.';
+                            }
+                        })
+                        .catch(error => {
+                            document.getElementById('locationMessage').textContent = 'Fout bij ophalen van adres';
+                            console.error('Error fetching address:', error);
+                        });
+                }, function() {
+                    document.getElementById('locationMessage').textContent = 'Locatie toegang geweigerd of niet beschikbaar.';
+                });
+            } else {
+                document.getElementById('locationMessage').textContent = 'Geolocatie wordt niet ondersteund door je browser.';
+            }
+        });
+    </script>
 </body>
 </html>
