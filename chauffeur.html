@@ -2,116 +2,104 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>YOLO Taxi - Chauffeur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chauffeur Dashboard</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f9;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      padding: 20px;
     }
-
-    .container {
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 30px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    h2 {
-      color: #4a90e2;
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-
-    .resultaat {
-      margin-top: 20px;
-      font-size: 1.3em;
-      font-weight: bold;
-      color: #2d2d2d;
-    }
-
-    .chauffeur-info {
-      margin-top: 30px;
-      font-size: 1.2em;
+    h1 {
       color: #333;
-      font-weight: bold;
     }
-
-    button {
-      background-color: #4a90e2;
-      color: white;
-      font-size: 1.2em;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+    .login-form, .dashboard {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    input, button {
       width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
-
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
     button:hover {
-      background-color: #357ab7;
+      background-color: #0056b3;
+    }
+    .hidden {
+      display: none;
     }
   </style>
-  <script>
-    // Functie om ritgegevens te laden
-    function laadRitgegevens() {
-      const ophaaladres = localStorage.getItem("ophaaladres");
-      const afzetadres = localStorage.getItem("afzetadres");
+</head>
+<body>
+  <div class="login-form" id="loginForm">
+    <h1>Chauffeur Login</h1>
+    <input type="text" id="chauffeurNaam" placeholder="Voer je naam in" />
+    <button onclick="loginChauffeur()">Inloggen</button>
+  </div>
 
-      if (ophaaladres && afzetadres) {
-        document.getElementById("rit-details").innerText = `Ophaaladres: ${ophaaladres}\nAfzetadres: ${afzetadres}`;
-        document.getElementById("accept-btn").style.display = 'block';
-      } else {
-        document.getElementById("rit-details").innerText = "Geen ritgegevens beschikbaar.";
+  <div class="dashboard hidden" id="dashboard">
+    <h1>Welkom, <span id="naamWeergave"></span></h1>
+    <p>Status: <span id="status">Actief</span></p>
+    <p>Live Locatie: <span id="locatie">Laden...</span></p>
+
+    <h2>Rittenlijst</h2>
+    <ul id="ritten">
+      <li>Geen ritten beschikbaar</li>
+    </ul>
+    <button onclick="uitloggen()">Uitloggen</button>
+  </div>
+
+  <script>
+    function loginChauffeur() {
+      const naam = document.getElementById("chauffeurNaam").value;
+      if (naam) {
+        localStorage.setItem("chauffeurNaam", naam);
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        document.getElementById("naamWeergave").textContent = naam;
+        haalLocatieOp();
       }
     }
 
-    // Functie om de rit te accepteren
-    function accepteerRit() {
-      alert("Je hebt de rit geaccepteerd!");
-      // Hier kun je de ritstatus bijwerken (bijv. de chauffeur als bezet markeren).
+    function uitloggen() {
+      localStorage.removeItem("chauffeurNaam");
+      location.reload();
     }
 
-    // Aangepaste functies voor de body-elementstijl en inhoud
-    window.onload = function() {
-      // Selecteer het body-element
-      const body = document.querySelector('body');
-      
-      // Pas stijlen toe op het body-element
-      body.style.backgroundColor = 'red';  // Stel de achtergrondkleur in op rood
-      body.style.minHeight = '100px';      // Stel de minimale hoogte in op 100px
-
-      // Voeg tekst toe aan het body-element
-      body.textContent = 'Hello World!';
-
-      // Verzamel informatie over het body-element
-      const data = {
-        bodyContent: body.textContent,
-        bodyBackgroundColor: window.getComputedStyle(body)['background-color'],
-        bodyMinHeight: window.getComputedStyle(body)['min-height'],
-      };
-
-      // Log de gegevens naar de console voor controle
-      console.log(data);
-      
-      // Laad ritgegevens
-      laadRitgegevens();
+    function haalLocatieOp() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          const coords = pos.coords.latitude + ", " + pos.coords.longitude;
+          document.getElementById("locatie").textContent = coords;
+        }, function(error) {
+          document.getElementById("locatie").textContent = "Locatie niet beschikbaar";
+        });
+      } else {
+        document.getElementById("locatie").textContent = "Locatie niet ondersteund";
+      }
     }
+
+    window.onload = function () {
+      const naam = localStorage.getItem("chauffeurNaam");
+      if (naam) {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        document.getElementById("naamWeergave").textContent = naam;
+        haalLocatieOp();
+      }
+    };
   </script>
-</head>
-<body>
-  <div class="container">
-    <h2>YOLO Taxi - Chauffeur</h2>
-    <p id="rit-details" class="chauffeur-info"></p>
-    <button id="accept-btn" onclick="accepteerRit()" style="display:none;">Accepteer Rit</button>
-  </div>
 </body>
 </html>
