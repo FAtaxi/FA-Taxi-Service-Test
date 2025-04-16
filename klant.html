@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YOLO Taxi - Klant</title>
   <style>
@@ -53,9 +53,13 @@
       background-color: #ffaa00;
     }
 
-    #resultaat {
+    #resultaat, #bevestiging {
       margin-top: 30px;
       font-size: 1.1rem;
+    }
+
+    #boekBtn {
+      display: none;
     }
   </style>
 </head>
@@ -68,8 +72,12 @@
   <button onclick="berekenRit()">Bereken ritprijs</button>
 
   <p id="resultaat"></p>
+  <button id="boekBtn" onclick="boekRit()">Boek nu</button>
+  <p id="bevestiging"></p>
 
   <script>
+    let ritGegevens = {};
+
     async function berekenRit() {
       const ophalen = document.getElementById("ophaaladres").value;
       const afzetten = document.getElementById("afzetadres").value;
@@ -78,6 +86,9 @@
         alert("Vul beide adressen in.");
         return;
       }
+
+      ritGegevens.ophaaladres = ophalen;
+      ritGegevens.afzetadres = afzetten;
 
       const apiKey = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
 
@@ -89,12 +100,4 @@
         const afstandKm = data.features[0].properties.summary.distance / 1000;
         const duurMin = data.features[0].properties.summary.duration / 60;
 
-        const prijs = 3 + (afstandKm * 2.00) + (duurMin * 0.50);
-        document.getElementById("resultaat").innerText = `Geschatte prijs: €${prijs.toFixed(2)} (${afstandKm.toFixed(1)} km, ${duurMin.toFixed(0)} min)`;
-      } catch (err) {
-        document.getElementById("resultaat").innerText = "Kon de rit niet berekenen. Probeer het opnieuw.";
-      }
-    }
-  </script>
-</body>
-</html>
+        const
