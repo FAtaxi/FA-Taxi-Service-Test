@@ -59,32 +59,38 @@
     button:hover {
       background-color: #357ab7;
     }
-
-    .status {
-      margin-top: 20px;
-      font-size: 1.1em;
-      color: green;
-      font-weight: bold;
-    }
   </style>
   <script>
     function laadRitgegevens() {
+      // Haal ritgegevens op uit localStorage
       const ophaaladres = localStorage.getItem("ophaaladres");
       const afzetadres = localStorage.getItem("afzetadres");
 
+      // Debugging: Controleer of de waarden correct zijn geladen
+      console.log("Ophaaladres:", ophaaladres);
+      console.log("Afzetadres:", afzetadres);
+
       if (ophaaladres && afzetadres) {
+        // Toon de ritgegevens als ze beschikbaar zijn
         document.getElementById("rit-details").innerText = `Ophaaladres: ${ophaaladres}\nAfzetadres: ${afzetadres}`;
         document.getElementById("accept-btn").style.display = 'block';
       } else {
+        // Toon een bericht als er geen ritgegevens beschikbaar zijn
         document.getElementById("rit-details").innerText = "Geen ritgegevens beschikbaar.";
       }
     }
 
     function accepteerRit() {
-      // Rit geaccepteerd, geef status weer
-      document.getElementById("status").innerText = "Rit geaccepteerd!";
-      
-      // Simuleer het verzenden van een bericht naar de klant
       alert("Je hebt de rit geaccepteerd!");
-      
-      // Hier kun je extra logica toevoegen voor het verzenden van een bericht naar de klant, bijvoorbeeld
+      // Hier kun je de ritstatus bijwerken (bijv. de chauffeur als bezet markeren).
+    }
+  </script>
+</head>
+<body onload="laadRitgegevens()">
+  <div class="container">
+    <h2>YOLO Taxi - Chauffeur</h2>
+    <p id="rit-details" class="chauffeur-info"></p>
+    <button id="accept-btn" onclick="accepteerRit()" style="display:none;">Accepteer Rit</button>
+  </div>
+</body>
+</html>
