@@ -3,22 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="google" content="notranslate"> <!-- Voeg dit toe om automatische vertaling uit te schakelen -->
   <title>Chauffeur Dashboard</title>
   <style>
     * {
-      box-sizing: border-box;
-    }
-    body {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: auto;
+      min-height: 100vh; /* Zorg ervoor dat de pagina altijd de volledige hoogte heeft */
+    }
+
+    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #00c6ff, #0072ff);
-      min-height: 100vh;
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
     .container {
       background-color: rgba(255, 255, 255, 0.15);
       padding: 30px;
@@ -28,6 +35,7 @@
       max-width: 600px;
       text-align: center;
     }
+
     input, button {
       padding: 10px;
       margin: 10px 0;
@@ -36,33 +44,44 @@
       width: 100%;
       font-size: 1rem;
     }
+
     button {
       background-color: #fff;
       color: #0072ff;
       cursor: pointer;
       transition: 0.3s ease;
     }
+
     button:hover {
       background-color: #0072ff;
       color: #fff;
       transform: scale(1.05);
     }
+
     #dashboard {
       display: none;
     }
+
     .ritten-lijst {
       text-align: left;
       margin-top: 20px;
     }
+
     .rit {
       background: rgba(255, 255, 255, 0.2);
       padding: 10px;
       margin: 10px 0;
       border-radius: 10px;
     }
+
     .rit button {
       width: auto;
       padding: 8px 15px;
+    }
+
+    /* Verberg Google Translate tooltip */
+    #goog-gt-tt {
+      display: none !important;
     }
   </style>
 </head>
