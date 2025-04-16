@@ -1,12 +1,76 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YOLO Taxi - Klant</title>
-  <script>
-    let beschikbareRit = null; // Variabele om de beschikbare rit op te slaan.
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1c1c1c, #3b3b3b);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
 
-    function berekenRit() {
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      margin: 10px 0;
+      width: 300px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #ffcc00;
+      color: #000;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #ffaa00;
+    }
+
+    #resultaat {
+      margin-top: 30px;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>YOLO Taxi - Klant</h1>
+  <p>Vul je vertrek- en bestemmingsadres in en bereken de ritprijs.</p>
+
+  <input id="ophaaladres" type="text" placeholder="Ophaaladres"><br>
+  <input id="afzetadres" type="text" placeholder="Bestemmingsadres"><br>
+  <button onclick="berekenRit()">Bereken ritprijs</button>
+
+  <p id="resultaat"></p>
+
+  <script>
+    async function berekenRit() {
       const ophalen = document.getElementById("ophaaladres").value;
       const afzetten = document.getElementById("afzetadres").value;
 
@@ -15,36 +79,22 @@
         return;
       }
 
-      const afstandKm = 10; // Stel deze waarde in op basis van je berekening
-      const duurMin = 20; // Stel deze waarde in op basis van je berekening
+      const apiKey = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
 
-      // Bereken de prijs (stel voor als voorbeeld)
-      const prijs = (afstandKm * 2.35) + (duurMin * 0.50);
-      document.getElementById("resultaat").innerText = `Geschatte prijs: €${prijs.toFixed(2)} (${afstandKm.toFixed(1)} km, ${duurMin.toFixed(0)} min)`;
+      try {
+        const response = await fetch(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${encodeURIComponent(ophalen)}&end=${encodeURIComponent(afzetten)}`);
+        if (!response.ok) throw new Error("Fout bij ophalen van de route.");
 
-      // Maak de rit beschikbaar voor de chauffeur
-      beschikbareRit = { ophalen, afzetten, prijs };
-      document.getElementById("ritstatus").innerText = "Rit beschikbaar voor chauffeur!";
-    }
+        const data = await response.json();
+        const afstandKm = data.features[0].properties.summary.distance / 1000;
+        const duurMin = data.features[0].properties.summary.duration / 60;
 
-    function ritAanvragen() {
-      if (beschikbareRit) {
-        alert("Rit is aangevraagd!");
-      } else {
-        alert("Bereken eerst een rit!");
+        const prijs = 3 + (afstandKm * 2.00) + (duurMin * 0.50);
+        document.getElementById("resultaat").innerText = `Geschatte prijs: €${prijs.toFixed(2)} (${afstandKm.toFixed(1)} km, ${duurMin.toFixed(0)} min)`;
+      } catch (err) {
+        document.getElementById("resultaat").innerText = "Kon de rit niet berekenen. Probeer het opnieuw.";
       }
     }
   </script>
-</head>
-<body>
-  <h2>YOLO Taxi - Klant</h2>
-  <label>Ophaaladres:</label><br />
-  <input id="ophaaladres" type="text" placeholder="Bijv. Laan op Zuid 2, Rotterdam"><br />
-  <label>Afzetadres:</label><br />
-  <input id="afzetadres" type="text" placeholder="Bijv. Coolsingel 25, Rotterdam"><br /><br />
-  <button onclick="berekenRit()">Bereken prijs</button><br />
-  <button onclick="ritAanvragen()">Vraag rit aan</button><br />
-  <p id="resultaat"></p>
-  <p id="ritstatus"></p>
 </body>
 </html>
