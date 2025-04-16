@@ -1,0 +1,155 @@
+// === beheer.html ===
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beheerpagina Chauffeurs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    button {
+      padding: 5px 10px;
+      margin: 2px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .verwijder {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .blokkeer {
+      background-color: #f39c12;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Beheer Chauffeurs</h1>
+    <div id="inlogSectie">
+      <input type="password" id="wachtwoord" placeholder="Beheerder wachtwoord">
+      <button onclick="beheerInloggen()">Inloggen</button>
+    </div>
+    <div id="beheerSectie" style="display:none;">
+      <table id="chauffeurTabel">
+        <thead>
+          <tr>
+            <th>Naam</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Acties</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function beheerInloggen() {
+      const wachtwoord = document.getElementById("wachtwoord").value;
+      if (wachtwoord === "beheer123") {
+        document.getElementById("inlogSectie").style.display = "none";
+        document.getElementById("beheerSectie").style.display = "block";
+        laadChauffeurs();
+      } else {
+        alert("Onjuist wachtwoord");
+      }
+    }
+
+    async function laadChauffeurs() {
+      const res = await fetch("/chauffeurs.json");
+      const chauffeurs = await res.json();
+      const tbody = document.querySelector("#chauffeurTabel tbody");
+      tbody.innerHTML = "";
+      chauffeurs.forEach((c, i) => {
+        const rij = document.createElement("tr");
+        rij.innerHTML = `
+          <td>${c.naam}</td>
+          <td>${c.email}</td>
+          <td>${c.geblokkeerd ? "Geblokkeerd" : "Actief"}</td>
+          <td>
+            <button class="verwijder" onclick="verwijderChauffeur(${i})">Verwijder</button>
+            <button class="blokkeer" onclick="blokkeerChauffeur(${i})">Blokkeer</button>
+          </td>
+        `;
+        tbody.appendChild(rij);
+      });
+    }
+
+    async function verwijderChauffeur(index) {
+      await fetch(`/verwijder-chauffeur?index=${index}`, { method: "DELETE" });
+      laadChauffeurs();
+    }
+
+    async function blokkeerChauffeur(index) {
+      await fetch(`/blokkeer-chauffeur?index=${index}`, { method: "POST" });
+      laadChauffeurs();
+    }
+  </script>
+</body>
+</html>
+
+
+// === Express backend aanvulling (server.js of index.js) ===
+const express = require("express");
+const fs = require("fs");
+const app = express();
+const path = require("path");
+app.use(express.json());
+
+const CHAUFFEUR_PATH = path.join(__dirname, "chauffeurs.json");
+
+// Verwijder chauffeur
+app.delete("/verwijder-chauffeur", (req, res) => {
+  const index = parseInt(req.query.index);
+  let chauffeurs = JSON.parse(fs.readFileSync(CHAUFFEUR_PATH));
+  chauffeurs.splice(index, 1);
+  fs.writeFileSync(CHAUFFEUR_PATH, JSON.stringify(chauffeurs, null, 2));
+  res.sendStatus(200);
+});
+
+// Blokkeer chauffeur
+app.post("/blokkeer-chauffeur", (req, res) => {
+  const index = parseInt(req.query.index);
+  let chauffeurs = JSON.parse(fs.readFileSync(CHAUFFEUR_PATH));
+  chauffeurs[index].geblokkeerd = true;
+  fs.writeFileSync(CHAUFFEUR_PATH, JSON.stringify(chauffeurs, null, 2));
+  res.sendStatus(200);
+});
+
+// Start server
+app.listen(3000, () => console.log("Server draait op http://localhost:3000"));
