@@ -2,57 +2,109 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YOLO Taxi - Chauffeur</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1c1c1c, #3b3b3b);
-      color: #ffffff;
+      padding: 0;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 40px 20px;
-      min-height: 100vh;
+      height: 100vh;
     }
 
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
-    }
-
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      max-width: 600px;
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
       text-align: center;
     }
 
-    .rit-info {
-      background-color: #2a2a2a;
-      padding: 20px;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      text-align: left;
+    h2 {
+      color: #4a90e2;
+      font-size: 2em;
+      margin-bottom: 20px;
     }
 
-    .rit-info h2 {
-      color: #ffcc00;
+    .resultaat {
+      margin-top: 20px;
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #2d2d2d;
+    }
+
+    .chauffeur-info {
+      margin-top: 30px;
+      font-size: 1.2em;
+      color: #333;
+      font-weight: bold;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      font-size: 1.2em;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #357ab7;
     }
   </style>
-</head>
-<body>
-  <h1>YOLO Taxi - Chauffeur</h1>
-  <p>Hier zie je de beschikbare ritten. In de toekomst kun je ritten accepteren of weigeren.</p>
+  <script>
+    function laadRitgegevens() {
+      const ophaaladres = localStorage.getItem("ophaaladres");
+      const afzetadres = localStorage.getItem("afzetadres");
 
-  <div class="rit-info">
-    <h2>Volgende rit</h2>
-    <p><strong>Ophaaladres:</strong> Laan op Zuid 2, Rotterdam</p>
-    <p><strong>Bestemmingsadres:</strong> Coolsingel 25, Rotterdam</p>
-    <p><strong>Prijs:</strong> €12,50</p>
-    <p><em>Functie om rit te accepteren komt binnenkort.</em></p>
+      if (ophaaladres && afzetadres) {
+        document.getElementById("rit-details").innerText = `Ophaaladres: ${ophaaladres}\nAfzetadres: ${afzetadres}`;
+        document.getElementById("accept-btn").style.display = 'block';
+      } else {
+        document.getElementById("rit-details").innerText = "Geen ritgegevens beschikbaar.";
+      }
+    }
+
+    function accepteerRit() {
+      const ritId = 1; // De ID van de rit die de chauffeur gaat accepteren (bijv. 1)
+      const chauffeurId = 1; // De ID van de chauffeur (dit moet dynamisch zijn als de chauffeur ingelogd is)
+
+      fetch('/accepteer-rit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ritId: ritId,
+          chauffeurId: chauffeurId
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        // Update de pagina voor de chauffeur om de status bij te werken
+        document.getElementById("rit-details").innerText = `Rit geaccepteerd!`;
+        document.getElementById("accept-btn").style.display = 'none';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+  </script>
+</head>
+<body onload="laadRitgegevens()">
+  <div class="container">
+    <h2>YOLO Taxi - Chauffeur</h2>
+    <p id="rit-details" class="chauffeur-info"></p>
+    <button id="accept-btn" onclick="accepteerRit()" style="display:none;">Accepteer Rit</button>
   </div>
 </body>
 </html>
