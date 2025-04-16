@@ -2,42 +2,57 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YOLO Taxi - Chauffeur</title>
-  <script>
-    let beschikbareRit = null; // De rit die beschikbaar is voor de chauffeur.
-
-    function toonRitten() {
-      if (beschikbareRit) {
-        document.getElementById("ritbeschikbaar").innerText = `Beschikbare rit: ${beschikbareRit.ophalen} naar ${beschikbareRit.afzetten}. Prijs: €${beschikbareRit.prijs.toFixed(2)}`;
-        document.getElementById("acceptButton").style.display = "block";
-      } else {
-        document.getElementById("ritbeschikbaar").innerText = "Geen rit beschikbaar.";
-        document.getElementById("acceptButton").style.display = "none";
-      }
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1c1c1c, #3b3b3b);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
     }
 
-    function accepteerRit() {
-      if (beschikbareRit) {
-        alert("Rit geaccepteerd!");
-        beschikbareRit = null; // Maak de rit niet meer beschikbaar.
-        toonRitten(); // Werk de ritstatus bij.
-      }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
     }
 
-    // Simuleer het krijgen van de ritgegevens van de klantpagina
-    function simulateerKlantRit() {
-      beschikbareRit = { ophalen: "Laan op Zuid 2", afzetten: "Coolsingel 25", prijs: 25.0 };
-      toonRitten();
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      max-width: 600px;
+      text-align: center;
     }
 
-    // Start simulatie van de klant die een rit aanvraagt
-    simulateerKlantRit();
-  </script>
+    .rit-info {
+      background-color: #2a2a2a;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      text-align: left;
+    }
+
+    .rit-info h2 {
+      color: #ffcc00;
+    }
+  </style>
 </head>
 <body>
-  <h2>YOLO Taxi - Chauffeur</h2>
-  <div id="ritbeschikbaar"></div><br />
-  <button id="acceptButton" style="display:none" onclick="accepteerRit()">Accepteer rit</button>
-  <br />
+  <h1>YOLO Taxi - Chauffeur</h1>
+  <p>Hier zie je de beschikbare ritten. In de toekomst kun je ritten accepteren of weigeren.</p>
+
+  <div class="rit-info">
+    <h2>Volgende rit</h2>
+    <p><strong>Ophaaladres:</strong> Laan op Zuid 2, Rotterdam</p>
+    <p><strong>Bestemmingsadres:</strong> Coolsingel 25, Rotterdam</p>
+    <p><strong>Prijs:</strong> €12,50</p>
+    <p><em>Functie om rit te accepteren komt binnenkort.</em></p>
+  </div>
 </body>
 </html>
