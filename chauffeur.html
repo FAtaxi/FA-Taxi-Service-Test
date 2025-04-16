@@ -61,32 +61,53 @@
     }
   </style>
   <script>
+    // Functie om ritgegevens te laden
     function laadRitgegevens() {
-      // Haal ritgegevens op uit localStorage
       const ophaaladres = localStorage.getItem("ophaaladres");
       const afzetadres = localStorage.getItem("afzetadres");
 
-      // Debugging: Controleer of de waarden correct zijn geladen
-      console.log("Ophaaladres:", ophaaladres);
-      console.log("Afzetadres:", afzetadres);
-
       if (ophaaladres && afzetadres) {
-        // Toon de ritgegevens als ze beschikbaar zijn
         document.getElementById("rit-details").innerText = `Ophaaladres: ${ophaaladres}\nAfzetadres: ${afzetadres}`;
         document.getElementById("accept-btn").style.display = 'block';
       } else {
-        // Toon een bericht als er geen ritgegevens beschikbaar zijn
         document.getElementById("rit-details").innerText = "Geen ritgegevens beschikbaar.";
       }
     }
 
+    // Functie om de rit te accepteren
     function accepteerRit() {
       alert("Je hebt de rit geaccepteerd!");
       // Hier kun je de ritstatus bijwerken (bijv. de chauffeur als bezet markeren).
     }
+
+    // Aangepaste functies voor de body-elementstijl en inhoud
+    window.onload = function() {
+      // Selecteer het body-element
+      const body = document.querySelector('body');
+      
+      // Pas stijlen toe op het body-element
+      body.style.backgroundColor = 'red';  // Stel de achtergrondkleur in op rood
+      body.style.minHeight = '100px';      // Stel de minimale hoogte in op 100px
+
+      // Voeg tekst toe aan het body-element
+      body.textContent = 'Hello World!';
+
+      // Verzamel informatie over het body-element
+      const data = {
+        bodyContent: body.textContent,
+        bodyBackgroundColor: window.getComputedStyle(body)['background-color'],
+        bodyMinHeight: window.getComputedStyle(body)['min-height'],
+      };
+
+      // Log de gegevens naar de console voor controle
+      console.log(data);
+      
+      // Laad ritgegevens
+      laadRitgegevens();
+    }
   </script>
 </head>
-<body onload="laadRitgegevens()">
+<body>
   <div class="container">
     <h2>YOLO Taxi - Chauffeur</h2>
     <p id="rit-details" class="chauffeur-info"></p>
