@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>YOLO Taxi - Klant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #4a90e2;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 1.2em;
+      color: #333;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+      color: #333;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      font-size: 1.2em;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #357ab7;
+    }
+  </style>
+  <script>
+    function verstuurRitgegevens() {
+      const ophaaladres = document.getElementById("ophaaladres").value;
+      const afzetadres = document.getElementById("afzetadres").value;
+
+      if (!ophaaladres || !afzetadres) {
+        alert("Vul beide adressen in.");
+        return;
+      }
+
+      // Gegevens opslaan in localStorage
+      localStorage.setItem("ophaaladres", ophaaladres);
+      localStorage.setItem("afzetadres", afzetadres);
+
+      // Stuur door naar de chauffeurstoewijzingspagina
+      window.location.href = "chauffeurstoewijzing.html";
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h2>YOLO Taxi - Klant</h2>
+    <label for="ophaaladres">Ophaaladres:</label>
+    <input id="ophaaladres" type="text" placeholder="Vul het ophaaladres in" /><br />
+    <label for="afzetadres">Afzetadres:</label>
+    <input id="afzetadres" type="text" placeholder="Vul het afzetadres in" /><br /><br />
+    <button onclick="verstuurRitgegevens()">Verstuur ritgegevens</button>
+  </div>
+</body>
+</html>
