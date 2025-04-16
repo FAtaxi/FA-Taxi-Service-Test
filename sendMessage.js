@@ -1,33 +1,25 @@
-const accountSid = 'USD06777216215bbd75489a811232124d6'; // Je Account SID
-const authToken = 'f8b5284f7b1f9dff52c6eec96476f0f8'; // Je Auth Token
+// sendMessage.js
 
-const client = require('twilio')(accountSid, authToken);
+const express = require('express');
+const bodyParser = require('body-parser');
+const client = require('twilio')('USD06777216215bbd75489a811232124d6', 'f8b5284f7b1f9dff52c6eec96476f0f8');
 
-// Gegevens van de rit (hier kun je de werkelijke ritinformatie invullen)
-const ophaalLocatie = 'Laan op Zuid 2, Rotterdam';
-const afzetLocatie = 'Coolsingel 25, Rotterdam';
-const prijs = '€20,00';
-const duurMinuten = 15;
-const afstandKm = 5;
+const app = express();
+app.use(bodyParser.json());
 
-// Bericht met ritgegevens (zonder knoppen)
-const berichtBody = `
-Rit Details:
-Ophaallocatie: ${ophaalLocatie}
-Afzetlocatie: ${afzetLocatie}
-Prijs: ${prijs}
-Duur: ${duurMinuten} minuten
-Afstand: ${afstandKm} km
+app.post('/send', async (req, res) => {
+  const { message } = req.body;
+  try {
+    await client.messages.create({
+      from: 'whatsapp:+14155238886', // Twilio sandbox nummer
+      to: 'whatsapp:+31636018209',   // Jouw telefoonnummer
+      body: message,
+    });
+    res.send("Verzonden");
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Mislukt");
+  }
+});
 
-Reageer op dit bericht om de rit te bevestigen of te weigeren.
-`;
-
-// Verzenden van bericht naar chauffeur via WhatsApp
-client.messages
-  .create({
-    to: 'whatsapp:+31636018209', // WhatsApp nummer van de chauffeur
-    from: 'whatsapp:+14155238886', // Twilio WhatsApp Sandbox nummer
-    body: berichtBody
-  })
-  .then(message => console.log('Bericht verzonden met SID: ' + message.sid))
-  .catch(error => console.error('Fout bij verzenden: ' + error));
+app.listen(3000, () => console.log("Server draait op poort 3000"));
