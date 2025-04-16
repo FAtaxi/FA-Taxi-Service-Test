@@ -2,94 +2,63 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YOLO Taxi - Klant</title>
+  <title>YOLO Taxi - Rit aanvragen</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #1e1e1e, #2c2c2c);
-      color: #ffffff;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
-      min-height: 100vh;
+      padding: 40px;
     }
 
     h1 {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
+      color: #00ffcc;
     }
 
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      max-width: 500px;
-      text-align: center;
-    }
-
-    input[type="text"] {
-      padding: 12px;
+    input, button {
+      padding: 10px;
+      font-size: 16px;
       margin: 10px 0;
       width: 300px;
-      border-radius: 6px;
       border: none;
+      border-radius: 5px;
+    }
+
+    input {
+      background-color: #f1f1f1;
+      color: #000;
     }
 
     button {
-      padding: 12px 25px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 6px;
-      background-color: #ffcc00;
+      background-color: #00ffcc;
       color: #000;
       cursor: pointer;
-      margin-top: 10px;
-      transition: background-color 0.3s;
+      font-weight: bold;
     }
 
     button:hover {
-      background-color: #ffaa00;
+      background-color: #00ddaa;
     }
 
-    #resultaat, #bevestiging {
-      margin-top: 30px;
-      font-size: 1.1rem;
-    }
-
-    #boekBtn {
-      display: none;
+    #resultaat {
+      margin-top: 20px;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <h1>YOLO Taxi - Klant</h1>
-  <p>Vul je vertrek- en bestemmingsadres in en bereken de ritprijs.</p>
-
-  <input id="ophaaladres" type="text" placeholder="Ophaaladres"><br>
-  <input id="afzetadres" type="text" placeholder="Bestemmingsadres"><br>
+  <h1>YOLO Taxi - Rit Aanvragen</h1>
+  <input id="ophaaladres" type="text" placeholder="Ophaaladres" />
+  <input id="afzetadres" type="text" placeholder="Afzetadres" />
   <button onclick="berekenRit()">Bereken ritprijs</button>
+  <div id="resultaat"></div>
 
-  <p id="resultaat"></p>
-  <button id="boekBtn" onclick="boekRit()">Boek nu</button>
-  <p id="bevestiging"></p>
-
-  <!-- Zorg ervoor dat de JavaScript onderaan staat -->
   <script>
-    const apiKey = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
-
-    async function adresNaarCoordinaten(adres) {
-      const url = `https://api.openrouteservice.org/geocode/search?api_key=${apiKey}&text=${encodeURIComponent(adres)}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.features && data.features.length > 0) {
-        return data.features[0].geometry.coordinates;
-      } else {
-        throw new Error("Geen coördinaten gevonden voor het adres.");
-      }
-    }
-
     async function berekenRit() {
       const ophalen = document.getElementById("ophaaladres").value;
       const afzetten = document.getElementById("afzetadres").value;
@@ -100,31 +69,46 @@
       }
 
       try {
-        const coordStart = await adresNaarCoordinaten(ophalen);
-        const coordEind = await adresNaarCoordinaten(afzetten);
+        const geoAPI = "https://nominatim.openstreetmap.org/search?format=json&q=";
+        const ophalenResp = await fetch(`${geoAPI}${encodeURIComponent(ophalen)}`);
+        const afzettenResp = await fetch(`${geoAPI}${encodeURIComponent(afzetten)}`);
+        const ophalenData = await ophalenResp.json();
+        const afzettenData = await afzettenResp.json();
 
-        const routeUrl = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${coordStart[0]},${coordStart[1]}&end=${coordEind[0]},${coordEind[1]}`;
-        const response = await fetch(routeUrl);
-        const data = await response.json();
+        if (!ophalenData[0] || !afzettenData[0]) {
+          alert("Adres niet gevonden.");
+          return;
+        }
 
-        const afstandKm = data.features[0].properties.summary.distance / 1000;
-        const duurMin = data.features[0].properties.summary.duration / 60;
-        const prijs = 3 + (afstandKm * 2.00) + (duurMin * 0.50);
+        const start = `${ophalenData[0].lon},${ophalenData[0].lat}`;
+        const end = `${afzettenData[0].lon},${afzettenData[0].lat}`;
 
-        document.getElementById("resultaat").innerText =
-          `Geschatte prijs: €${prijs.toFixed(2)} (${afstandKm.toFixed(1)} km, ${duurMin.toFixed(0)} min)`;
+        const routeResp = await fetch(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3&start=${start}&end=${end}`);
+        const routeData = await routeResp.json();
 
-        document.getElementById("boekBtn").style.display = "inline-block";
-        document.getElementById("bevestiging").innerText = "";
+        const afstandKm = routeData.features[0].properties.summary.distance / 1000;
+        const duurMin = routeData.features[0].properties.summary.duration / 60;
 
-      } catch (err) {
-        document.getElementById("resultaat").innerText = "❌ Kon de rit niet berekenen. Controleer je adressen.";
-        document.getElementById("boekBtn").style.display = "none";
+        const starttarief = 3.00;
+        const prijs = starttarief + (afstandKm * 2.00) + (duurMin * 0.50);
+        const resultaat = `Prijs: €${prijs.toFixed(2)} | Afstand: ${afstandKm.toFixed(1)} km | Duur: ${duurMin.toFixed(0)} min`;
+
+        document.getElementById("resultaat").innerText = resultaat;
+
+        // Stuur naar WhatsApp (server.js of sendMessage.js moet draaien)
+        await fetch("http://localhost:3000/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: `Nieuwe rit:\nOphaaladres: ${ophalen}\nAfzetadres: ${afzetten}\n${resultaat}`
+          })
+        });
+
+        alert("Ritgegevens verzonden via WhatsApp.");
+      } catch (error) {
+        alert("Er ging iets mis bij het berekenen of verzenden.");
+        console.error(error);
       }
-    }
-
-    function boekRit() {
-      document.getElementById("bevestiging").innerText = "✅ Je rit is geboekt! Een chauffeur is onderweg.";
     }
   </script>
 </body>
