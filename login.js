@@ -1,31 +1,26 @@
-const loginForm = document.getElementById('login');
+// login.js
+import { auth, signInWithEmailAndPassword } from './firebase-config.js';
+
+const loginForm = document.getElementById('login-form');
 const errorMessage = document.getElementById('error-message');
 
-loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();  // Voorkom dat het formulier wordt verzonden
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
 
-    const naam = document.getElementById('naam').value;
-    const wachtwoord = document.getElementById('wachtwoord').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-    try {
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ naam, wachtwoord })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log('Inloggen gelukt!', data.message);
-            window.location.href = '/dashboard'; // Redirect naar dashboard
-        } else {
-            errorMessage.textContent = data.message; // Toon foutmelding
-        }
-    } catch (error) {
-        console.error('Er is iets misgegaan bij het inloggen:', error);
-        errorMessage.textContent = 'Er is iets misgegaan. Probeer het later opnieuw.';
-    }
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      alert("Inloggen succesvol!");
+      console.log(user);
+      // Hier kun je de gebruiker doorsturen naar de dashboardpagina of andere pagina
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessageText = error.message;
+      errorMessage.textContent = `Fout: ${errorMessageText}`;
+      console.error('Inlogfout:', errorCode, errorMessageText);
+    });
 });
