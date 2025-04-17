@@ -28,41 +28,37 @@
       document.getElementById("registerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const file = document.getElementById("document").files[0];
+        const fileInput = document.getElementById("document");
+        const file = fileInput.files[0];
         let fileUrl = "";
 
-        if (file) {
-          const storageRef = ref(storage, `chauffeurs/${Date.now()}_${file.name}`);
-          try {
-            await uploadBytes(storageRef, file);
-            fileUrl = await getDownloadURL(storageRef); // Haal de URL van het bestand op
-            console.log("Bestand geüpload:", fileUrl);
-          } catch (error) {
-            alert("Fout bij uploaden bestand: " + error.message);
-            return;
-          }
-        }
-
-        const formData = {
-          voornaam: document.getElementById("voornaam").value,
-          achternaam: document.getElementById("achternaam").value,
-          woonadres: document.getElementById("woonadres").value,
-          huisnummer: document.getElementById("huisnummer").value,
-          toevoeging: document.getElementById("toevoeging").value,
-          postcode: document.getElementById("postcode").value,
-          geboortedatum: document.getElementById("geboortedatum").value,
-          zakelijkadres: document.getElementById("zakelijkadres").value,
-          telefoonnummer: document.getElementById("telefoonnummer").value,
-          email: document.getElementById("email").value,
-          documentUrl: fileUrl // Voeg de bestand URL toe aan de gegevens
-        };
-
         try {
+          if (file) {
+            const storageRef = ref(storage, `chauffeurs/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            fileUrl = await getDownloadURL(storageRef);
+          }
+
+          const formData = {
+            voornaam: document.getElementById("voornaam").value,
+            achternaam: document.getElementById("achternaam").value,
+            woonadres: document.getElementById("woonadres").value,
+            huisnummer: document.getElementById("huisnummer").value,
+            toevoeging: document.getElementById("toevoeging").value,
+            postcode: document.getElementById("postcode").value,
+            geboortedatum: document.getElementById("geboortedatum").value,
+            zakelijkadres: document.getElementById("zakelijkadres").value,
+            telefoonnummer: document.getElementById("telefoonnummer").value,
+            email: document.getElementById("email").value,
+            documentUrl: fileUrl
+          };
+
           await addDoc(collection(db, "chauffeurs"), formData);
           alert("Registratie succesvol!");
           document.getElementById("registerForm").reset();
         } catch (error) {
-          alert("Fout bij registreren: " + error.message);
+          console.error("Fout bij registreren:", error);
+          alert("Er is iets misgegaan bij het registreren. Probeer opnieuw.");
         }
       });
     });
@@ -86,7 +82,9 @@
         <label class="block text-sm mb-1">Upload document (ID of rijbewijs)</label>
         <input id="document" type="file" accept=".pdf,.png,.jpg,.jpeg" class="p-2 border rounded w-full" />
       </div>
-      <button type="submit" class="col-span-2 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">Registreer</button>
+      <button type="submit" class="col-span-2 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">
+        Registreer
+      </button>
     </form>
   </div>
 </body>
