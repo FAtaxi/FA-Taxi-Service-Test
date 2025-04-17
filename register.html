@@ -25,42 +25,44 @@
     const storage = getStorage(app);
 
     document.addEventListener("DOMContentLoaded", () => {
-      const form = document.getElementById("registerForm");
-
-      form.addEventListener("submit", async (e) => {
+      document.getElementById("registerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const fileInput = document.getElementById("document");
-        const file = fileInput.files[0];
+        const file = document.getElementById("document").files[0];
         let fileUrl = "";
 
-        try {
-          if (file) {
-            const fileRef = ref(storage, `chauffeurs/${Date.now()}_${file.name}`);
-            await uploadBytes(fileRef, file);
-            fileUrl = await getDownloadURL(fileRef);
+        if (file) {
+          const storageRef = ref(storage, `chauffeurs/${Date.now()}_${file.name}`);
+          try {
+            await uploadBytes(storageRef, file);
+            fileUrl = await getDownloadURL(storageRef); // Haal de URL van het bestand op
+            console.log("Bestand geüpload:", fileUrl);
+          } catch (error) {
+            alert("Fout bij uploaden bestand: " + error.message);
+            return;
           }
+        }
 
-          const data = {
-            voornaam: document.getElementById("voornaam").value,
-            achternaam: document.getElementById("achternaam").value,
-            woonadres: document.getElementById("woonadres").value,
-            huisnummer: document.getElementById("huisnummer").value,
-            toevoeging: document.getElementById("toevoeging").value,
-            postcode: document.getElementById("postcode").value,
-            geboortedatum: document.getElementById("geboortedatum").value,
-            zakelijkadres: document.getElementById("zakelijkadres").value,
-            telefoonnummer: document.getElementById("telefoonnummer").value,
-            email: document.getElementById("email").value,
-            documentUrl: fileUrl
-          };
+        const formData = {
+          voornaam: document.getElementById("voornaam").value,
+          achternaam: document.getElementById("achternaam").value,
+          woonadres: document.getElementById("woonadres").value,
+          huisnummer: document.getElementById("huisnummer").value,
+          toevoeging: document.getElementById("toevoeging").value,
+          postcode: document.getElementById("postcode").value,
+          geboortedatum: document.getElementById("geboortedatum").value,
+          zakelijkadres: document.getElementById("zakelijkadres").value,
+          telefoonnummer: document.getElementById("telefoonnummer").value,
+          email: document.getElementById("email").value,
+          documentUrl: fileUrl // Voeg de bestand URL toe aan de gegevens
+        };
 
-          await addDoc(collection(db, "chauffeurs"), data);
+        try {
+          await addDoc(collection(db, "chauffeurs"), formData);
           alert("Registratie succesvol!");
-          form.reset();
-        } catch (err) {
-          console.error("Fout bij opslaan:", err);
-          alert("Er ging iets mis bij het registreren.");
+          document.getElementById("registerForm").reset();
+        } catch (error) {
+          alert("Fout bij registreren: " + error.message);
         }
       });
     });
