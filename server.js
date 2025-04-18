@@ -1,48 +1,35 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const bodyParser = require('body-parser');
+const twilio = require('twilio');
+const cors = require('cors');
+
 const app = express();
-const port = 3000;
+app.use(bodyParser.json());
+app.use(cors());
 
-app.use(express.static('public'));
-app.use(express.json());
+const accountSid = 'AC62065d08cb81f65011732cf3a80694f5';
+const authToken = 'f8b5284f7b1f9dff52c6eec96476f0f8';
+const client = twilio(accountSid, authToken);
 
-const dataPath = path.join(__dirname, 'chauffeurs.json');
+const fromWhatsAppNumber = 'whatsapp:+14155238886'; 
+const toWhatsAppNumber = 'whatsapp:+31647972301';
 
-// 🚗 Registratie
-app.post('/registreer', (req, res) => {
-  const { naam, wachtwoord } = req.body;
-  const gebruikers = JSON.parse(fs.readFileSync(dataPath));
+app.post('/send', async (req, res) => {
+  const { message } = req.body;
 
-  const bestaat = gebruikers.find((g) => g.naam === naam);
-  if (bestaat) return res.status(400).json({ message: 'Gebruiker bestaat al' });
-
-  gebruikers.push({ naam, wachtwoord });
-  fs.writeFileSync(dataPath, JSON.stringify(gebruikers, null, 2));
-  res.json({ message: 'Registratie gelukt!' });
+  try {
+    const msg = await client.messages.create({
+      from: fromWhatsAppNumber,
+      to: toWhatsAppNumber,
+      body: message,
+    });
+    res.status(200).json({ success: true, sid: msg.sid });
+  } catch (err) {
+    console.error('Fout bij verzenden via Twilio:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
-// 🔐 Login
-app.post('/login', (req, res) => {
-  const { naam, wachtwoord } = req.body;
-  const gebruikers = JSON.parse(fs.readFileSync(dataPath));
-
-  const gebruiker = gebruikers.find((g) => g.naam === naam && g.wachtwoord === wachtwoord);
-  if (!gebruiker) return res.status(401).json({ message: 'Onjuiste inloggegevens' });
-
-  res.json({ message: 'Inloggen gelukt!' });
-});
-
-// 📍 Locatie ophalen
-app.get('/locatie', (req, res) => {
-  const locatie = {
-    lat: 52.3784,  // Voorbeeld latitude
-    lon: 4.9009   // Voorbeeld longitude
-  };
-  res.json(locatie);
-});
-
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Server draait op http://localhost:${port}`);
+app.listen(3000, () => {
+  console.log('Server draait op http://localhost:3000');
 });
