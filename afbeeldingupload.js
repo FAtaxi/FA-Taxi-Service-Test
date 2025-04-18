@@ -1,26 +1,42 @@
-const path = require('path');
-const admin = require('firebase-admin');
+import { v2 as cloudinary } from 'cloudinary';
 
-const storage = admin.storage().bucket();
+(async function() {
 
-// Functie om afbeelding naar Firebase Storage te uploaden
-async function uploadImage(filePath, chauffeurId) {
-  const fileName = path.basename(filePath);
-  
-  // Uploaden naar Firebase Storage
-  try {
-    const file = storage.file(`chauffeurs/${chauffeurId}/${fileName}`);
-    await file.upload(filePath, {
-      metadata: {
-        contentType: 'image/jpeg', // Of het juiste bestandstype
-      },
+    // Configuration met directe API-sleutels
+    cloudinary.config({ 
+        cloud_name: 'db48g9zis', 
+        api_key: '896781555618925', 
+        api_secret: 'Cl3zUh6ToOfJ8AFNCCnDIwqfwVg' // API secret hier toegevoegd
     });
-
-    console.log('Afbeelding succesvol geüpload naar Firebase Storage');
-    return file.publicUrl();  // URL van de geüploade afbeelding
-  } catch (error) {
-    console.error('Fout bij het uploaden van de afbeelding:', error);
-  }
-}
-
-module.exports = { uploadImage };  // Exporteer de functie
+    
+    // Upload een afbeelding
+    const uploadResult = await cloudinary.uploader
+       .upload(
+           'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg', {
+               public_id: 'shoes',
+           }
+       )
+       .catch((error) => {
+           console.log(error);
+       });
+    
+    console.log(uploadResult);
+    
+    // Optimaliseer levering door te verkleinen en automatisch formaat en kwaliteit toe te passen
+    const optimizeUrl = cloudinary.url('shoes', {
+        fetch_format: 'auto',
+        quality: 'auto'
+    });
+    
+    console.log(optimizeUrl);
+    
+    // Transformeer de afbeelding: automatisch bijsnijden naar vierkant
+    const autoCropUrl = cloudinary.url('shoes', {
+        crop: 'auto',
+        gravity: 'auto',
+        width: 500,
+        height: 500,
+    });
+    
+    console.log(autoCropUrl);    
+})();
