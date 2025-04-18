@@ -3,94 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FA Taxi Service</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>FA Taxi Service - Rit Berekenen</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Roboto', sans-serif;
+      background-color: black;
+      color: white;
       margin: 0;
       padding: 0;
-      background-color: #111;
-      color: #fff;
     }
-
     h1 {
       text-align: center;
-      color: #ffd700;
-      font-size: 2.5rem;
-      margin-top: 20px;
+      color: red;
+      font-size: 36px;
+      margin-top: 50px;
     }
-
     .container {
       max-width: 500px;
       margin: 30px auto;
-      background: #222;
+      background: #333;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-
-    input[type="text"] {
+    input[type="text"], #resultaat {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
-      border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 1rem;
-      background-color: #333;
-      color: #fff;
+      border: 1px solid #ccc;
     }
-
     button {
-      background-color: #ffd700;
+      background-color: #FFD700;
       color: black;
       border: none;
-      padding: 10px 20px;
+      padding: 12px 25px;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 1rem;
       margin-top: 10px;
-      transition: background-color 0.3s ease;
+      font-size: 16px;
     }
-
     button:hover {
-      background-color: #e6a800;
+      background-color: #FFCC00;
     }
-
-    #resultaat {
-      margin-top: 20px;
-      background-color: #444;
-      padding: 15px;
-      border-radius: 5px;
-    }
-
-    .location-button {
-      background-color: #ffd700;
-      padding: 10px;
-      color: black;
-      border-radius: 5px;
-      font-size: 1rem;
-      margin-top: 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    .location-button:hover {
-      background-color: #e6a800;
+    #boekKnop {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>FA Taxi Service</h1>
   <div class="container">
-    <input type="text" id="ophaaladres" placeholder="Ophaaladres">
-    <button class="location-button" onclick="getCurrentLocation()">Gebruik mijn locatie</button>
-    <input type="text" id="afzetadres" placeholder="Afzetadres">
-    <button onclick="berekenRit()">Bereken ritprijs</button>
+    <h1>FA Taxi Service</h1>
+    <input type="text" id="ophaaladres" placeholder="Ophaaladres" />
+    <button onclick="getLocation()">Gebruik Mijn Locatie</button>
+    <input type="text" id="afzetadres" placeholder="Afzetadres" />
+    <button onclick="berekenRit()">Bereken Ritprijs</button>
     <div id="resultaat"></div>
-    <button id="boekKnop" style="display:none;" onclick="boekRit()">Boek nu</button>
+    <button id="boekKnop" onclick="boekRit()">Boek Nu</button>
   </div>
 
   <script>
+    const twilioAccountSid = "AC62065d08cb81f65011732cf3a80694f5"; // Twilio Account SID
+    const twilioAuthToken = "f8b5284f7b1f9dff52c6eec96476f0f8"; // Twilio Auth Token
+    const twilioPhoneNumber = "whatsapp:+1415XXXXXXX"; // Je Twilio WhatsApp-nummer
+
     const opencageKey = "22f9046cc2b242a3a5f08cfabc005f78";
     const openrouteKey = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
 
@@ -100,37 +76,7 @@
       const data = await res.json();
       if (data.results.length === 0) throw new Error("Geen locatie gevonden.");
       const { lat, lng } = data.results[0].geometry;
-      return [lat, lng];
-    }
-
-    // Functie om de live locatie van de gebruiker om te zetten naar adres
-    async function getCurrentLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async function(position) {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const locationInput = document.getElementById('ophaaladres');
-          
-          // Omzetten van coördinaten naar adres
-          const coordinates = await getCoordinates(`${lat},${lng}`);
-          locationInput.value = await getAddressFromCoordinates(coordinates[0], coordinates[1]);
-        }, function(error) {
-          alert("Locatie kan niet worden opgehaald.");
-        });
-      } else {
-        alert("Geolocatie wordt niet ondersteund door deze browser.");
-      }
-    }
-
-    // Functie om coördinaten om te zetten naar adres
-    async function getAddressFromCoordinates(lat, lng) {
-      const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${opencageKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.results.length > 0) {
-        return data.results[0].formatted;
-      }
-      return "Adres niet gevonden";
+      return [lng, lat];
     }
 
     async function berekenRit() {
@@ -146,7 +92,7 @@
         const start = await getCoordinates(ophalen);
         const eind = await getCoordinates(afzetten);
 
-        const routeURL = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${openrouteKey}&start=${start[1]},${start[0]}&end=${eind[1]},${eind[0]}`;
+        const routeURL = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${openrouteKey}&start=${start[0]},${start[1]}&end=${eind[0]},${eind[1]}`;
         const response = await fetch(routeURL);
         const data = await response.json();
 
@@ -172,10 +118,17 @@
       const bericht = `📲 Nieuw ritverzoek\n\n📍 Ophaaladres: ${ophalen}\n📍 Afzetadres: ${afzetten}\n\n${prijsInfo}`;
 
       try {
-        const response = await fetch('http://localhost:3000/send', {
+        const response = await fetch('https://api.twilio.com/2010-04-01/Accounts/' + twilioAccountSid + '/Messages.json', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: bericht })
+          headers: {
+            'Authorization': 'Basic ' + btoa(twilioAccountSid + ':' + twilioAuthToken),
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            'To': 'whatsapp:+31647972301', // Jouw WhatsApp-nummer
+            'From': twilioPhoneNumber, // Het Twilio WhatsApp-nummer
+            'Body': bericht
+          })
         });
 
         if (response.ok) {
@@ -186,6 +139,25 @@
       } catch (error) {
         console.error(error);
         alert('❌ Fout bij het versturen van het bericht.');
+      }
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=${opencageKey}`;
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              const location = data.results[0].formatted;
+              document.getElementById("ophaaladres").value = location;
+            });
+        });
+      } else {
+        alert("Geolocatie wordt niet ondersteund door deze browser.");
       }
     }
   </script>
